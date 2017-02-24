@@ -380,6 +380,23 @@ static void writePPM(const char *filename, VkImage image1) {
         return;
     }
 
+    VkFormat destformat = VK_FORMAT_R8G8B8A8_UNORM;
+
+    if (vk_format_is_unorm(format))
+        destformat = VK_FORMAT_R8G8B8A8_UNORM;
+    else if (vk_format_is_srgb(format))
+        destformat = VK_FORMAT_R8G8B8A8_SRGB;
+    else if (vk_format_is_snorm(format))
+        destformat = VK_FORMAT_R8G8B8A8_SNORM;
+    else if (vk_format_is_uscaled(format))
+        destformat = VK_FORMAT_R8G8B8A8_USCALED;
+    else if (vk_format_is_sscaled(format))
+        destformat = VK_FORMAT_R8G8B8A8_SSCALED;
+    else if (vk_format_is_uint(format))
+        destformat = VK_FORMAT_R8G8B8A8_UINT;
+    else if (vk_format_is_sint(format))
+        destformat = VK_FORMAT_R8G8B8A8_SINT;
+
     // General Approach
     //
     // The idea here is to copy/convert the swapchain image into another image
@@ -450,7 +467,7 @@ static void writePPM(const char *filename, VkImage image1) {
         NULL,
         0,
         VK_IMAGE_TYPE_2D,
-        VK_FORMAT_R8G8B8A8_UNORM,
+        destformat,
         {width, height, 1},
         1,
         1,
