@@ -373,6 +373,7 @@ static void writePPM(const char *filename, VkImage image1) {
     if ((vk_format_get_compatibility_class(target24bitFormat) != vk_format_get_compatibility_class(format)) &&
         (vk_format_get_compatibility_class(target32bitFormat) != vk_format_get_compatibility_class(format))) {
         assert(0);
+        fprintf(stderr, "ARDA" );
         return;
     }
     if ((3 != numChannels) && (4 != numChannels)) {
@@ -385,7 +386,7 @@ static void writePPM(const char *filename, VkImage image1) {
     if (vk_format_is_unorm(format))
         destformat = VK_FORMAT_R8G8B8A8_UNORM;
     else if (vk_format_is_srgb(format))
-        destformat = VK_FORMAT_R8G8B8A8_SRGB;
+        destformat = VK_FORMAT_R8G8B8_SRGB;
     else if (vk_format_is_snorm(format))
         destformat = VK_FORMAT_R8G8B8A8_SNORM;
     else if (vk_format_is_uscaled(format))
@@ -431,13 +432,15 @@ static void writePPM(const char *filename, VkImage image1) {
     // the same.  In this case, just do a COPY.
 
     VkFormatProperties targetFormatProps;
-    pInstanceTable->GetPhysicalDeviceFormatProperties(physicalDevice, (3 == numChannels) ? target24bitFormat : target32bitFormat,
-                                                      &targetFormatProps);
+    //pInstanceTable->GetPhysicalDeviceFormatProperties(physicalDevice, (3 == numChannels) ? target24bitFormat : target32bitFormat,
+    //                                                  &targetFormatProps);
+    pInstanceTable->GetPhysicalDeviceFormatProperties(physicalDevice, destformat, &targetFormatProps);
+    
     bool need2steps = false;
     bool copyOnly = false;
-    if ((target24bitFormat == format) || (target32bitFormat == format)) {
+   /*if ((target24bitFormat == format) || (target32bitFormat == format)) {
         copyOnly = true;
-    } else {
+    } else {*/
         bool const bltLinear = targetFormatProps.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT ? true : false;
         bool const bltOptimal = targetFormatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT ? true : false;
         if (!bltLinear && !bltOptimal) {
@@ -452,7 +455,7 @@ static void writePPM(const char *filename, VkImage image1) {
             need2steps = true;
         }
         // Else bltLinear is available and only 1 step is needed.
-    }
+    //}
 
     // Put resources that need to be cleaned up in a struct with a destructor
     // so that things get cleaned up when this function is exited.
@@ -737,12 +740,13 @@ static void writePPM(const char *filename, VkImage image1) {
     file << 255 << "\n";
 
     ptr += srLayout.offset;
-    if (3 == numChannels) {
+    //if (3 == numChannels) {
         for (uint32_t y = 0; y < height; y++) {
             file.write(ptr, 3 * width);
             ptr += srLayout.rowPitch;
         }
-    } else if (4 == numChannels) {
+    //} else if (4 == numChannels) {
+    /*
         for (uint32_t y = 0; y < height; y++) {
             const unsigned int *row = (const unsigned int *)ptr;
             for (uint32_t x = 0; x < width; x++) {
@@ -750,8 +754,8 @@ static void writePPM(const char *filename, VkImage image1) {
                 row++;
             }
             ptr += srLayout.rowPitch;
-        }
-    }
+        }*/
+    //}
     file.close();
 
     // Clean up handled by ~WritePPMCleanupData()
