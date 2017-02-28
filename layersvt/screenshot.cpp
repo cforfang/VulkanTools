@@ -448,11 +448,14 @@ static void writePPM(const char *filename, VkImage image1) {
             // unlikely to have a device that cannot blit to either type.
             // But punt by just doing a copy and possibly have the wrong
             // colors.  This should be quite rare.
-            copyOnly = true;
+            fprintf(stderr, "ARDA %d no need \n", __LINE__);
+            //copyOnly = true;
+             need2steps = true;
         } else if (!bltLinear && bltOptimal) {
             // Cannot blit to a linear target but can blt to optimal, so copy
             // after blit is needed.
             need2steps = true;
+            fprintf(stderr, "ARDA %d need 2 \n", __LINE__);
         }
         // Else bltLinear is available and only 1 step is needed.
     //}
@@ -488,6 +491,7 @@ static void writePPM(const char *filename, VkImage image1) {
     if (need2steps) {
         imgCreateInfo2.tiling = VK_IMAGE_TILING_OPTIMAL;
         imgCreateInfo2.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        fprintf(stderr, "ARDA need 2 steps tiling set %d \n", __LINE__);
     }
 
     VkMemoryAllocateInfo memAllocInfo = {
@@ -622,6 +626,7 @@ static void writePPM(const char *filename, VkImage image1) {
     if (copyOnly) {
         pTableCommandBuffer->CmdCopyImage(data.commandBuffer, image1, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.image2,
                                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopyRegion);
+        fprintf(stderr, "ARDA vkCmdCopyImage %d \n", __LINE__);
     } else {
         VkImageBlit imageBlitRegion = {};
         imageBlitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -638,7 +643,7 @@ static void writePPM(const char *filename, VkImage image1) {
         imageBlitRegion.dstOffsets[1].x = width;
         imageBlitRegion.dstOffsets[1].y = height;
         imageBlitRegion.dstOffsets[1].z = 1;
-
+        fprintf(stderr, "ARDA blitting %d \n", __LINE__);
         pTableCommandBuffer->CmdBlitImage(data.commandBuffer, image1, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, data.image2,
                                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlitRegion, VK_FILTER_NEAREST);
         if (need2steps) {
@@ -648,6 +653,7 @@ static void writePPM(const char *filename, VkImage image1) {
             pTableCommandBuffer->CmdPipelineBarrier(data.commandBuffer, srcStages, dstStages, 0, 0, NULL, 0, NULL, 1,
                                                     &destMemoryBarrier);
 
+            fprintf(stderr, "ARDA %d \n", __LINE__);
             // Transition image2 so that it can be read for the upcoming copy to
             // image 3.
             destMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -714,9 +720,11 @@ static void writePPM(const char *filename, VkImage image1) {
         assert(!err);
         if (VK_SUCCESS != err) return;
         data.mem2mapped = true;
+        fprintf(stderr, "ARDA  noneed map why map whole%d \n", __LINE__);
     } else {
         pTableDevice->GetImageSubresourceLayout(device, data.image3, &sr, &srLayout);
         err = pTableDevice->MapMemory(device, data.mem3, 0, VK_WHOLE_SIZE, 0, (void **)&ptr);
+        fprintf(stderr, "ARDA %d yes need 2 map why map whiole \n", __LINE__);
         assert(!err);
         if (VK_SUCCESS != err) return;
         data.mem3mapped = true;
@@ -1057,6 +1065,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
             // We'll dump only one image: the first
             swapchain = pPresentInfo->pSwapchains[0];
             image = swapchainMap[swapchain]->imageList[pPresentInfo->pImageIndices[0]];
+            printf("ARDA Captured screen writing into file: %s \n", fileName.c_str());
             writePPM(fileName.c_str(), image);
             if (inScreenShotFrames) {
                 screenshotFrames.erase(it);
