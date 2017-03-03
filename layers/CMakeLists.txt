@@ -116,6 +116,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../include/vulkan
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_BINARY_DIR}
+    ${JSONCPP_INCLUDE_DIR}
 )
 
 if (WIN32)
@@ -145,7 +146,7 @@ endif()
 add_vk_layer(core_validation core_validation.cpp vk_layer_table.cpp descriptor_sets.cpp buffer_validation.cpp)
 add_vk_layer(object_tracker object_tracker.cpp vk_layer_table.cpp)
 add_vk_layer(image image.cpp vk_layer_table.cpp)
-add_vk_layer(spoof spoof.cpp vk_layer_table.cpp)
+add_vk_layer(spoof spoof.cpp vk_layer_table.cpp ${JSONCPP_SOURCE_DIR}/jsoncpp.cpp)
 add_vk_layer(swapchain swapchain.cpp vk_layer_table.cpp)
 # generated
 add_vk_layer(threading threading.cpp thread_check.h vk_layer_table.cpp)

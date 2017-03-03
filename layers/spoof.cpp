@@ -30,6 +30,12 @@
 #include "vk_layer_table.h"
 #include "mutex"
 
+#include <fstream>
+#include <iostream>
+#include <sstream>
+
+#include <json/json.h>
+
 static std::unordered_map<dispatch_key, VkInstance> spoof_instance_map;
 static std::mutex global_lock; // Protect map accesses and unique_id increments
 
@@ -213,6 +219,90 @@ spoof_LayerSpoofEXT(VkPhysicalDevice physicalDevice) {
     return VK_SUCCESS;
 }
 
+//bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
+bool ReadDriverJson(void) {
+    bool found_json = false;
+    std::ifstream *stream = NULL;
+    Json::Value root = Json::nullValue;
+    Json::Value inst_exts = Json::nullValue;
+    Json::Value dev_exts = Json::nullValue;
+    Json::Reader reader;
+    char full_json_path[100]="/home/arda-sky/workspace/vulkanreport.json";
+    //char generic_string[MAX_STRING_LENGTH];
+    uint32_t j = 0;
+
+    volatile bool a = false;
+    while(a)
+    {
+        int k; k++;
+    }
+    
+    printf("ARDA JSON File \n");
+    
+    stream = new std::ifstream(full_json_path, std::ifstream::in);
+    
+    if (nullptr == stream || stream->fail()) {
+        printf("Error reading JSON file\n");
+        printf("GAGA: %s\n", full_json_path);
+
+    }
+    
+    printf("ARDA JSON File 2\n");
+
+    if (!reader.parse(*stream, root, false) || root.isNull()) {
+        printf("Error reading JSON file\n");
+        printf("ARDA %s \n", reader.getFormattedErrorMessages());
+    }
+
+    printf("ARDA JSON File 3\n");
+    
+    if (!root["devicefeatures"]["alphaToOne"].isNull()) {
+        std::string bak = root["devicefeatures"]["alphaToOne"].asString();
+        printf("ARDA LETs see %s \n", bak.c_str());
+        printf("ARDA LETs see %s \n", root["devicelimits"]["bufferImageGranularity"].asString().c_str());
+        std::string bIG = root["devicelimits"]["bufferImageGranularity"].asString();
+        printf("ARDA LETs see %s \n", bIG.c_str());
+        //printf("ARDA LETs see %d \n", bIG. );
+        //printf("LETs see %d \n", root["devicefeatures"]["alphaToOne"].asUInt());
+    } else {
+        printf("ARDA MISSING!\n");
+    }
+    
+    printf("ARDA JSON File 4\n");
+    
+/*
+    if (root["ICD"].isNull()) {
+        PrintBeginTableRow();
+        PrintTableElement("");
+        PrintTableElement("ICD Section");
+        PrintTableElement("MISSING!");
+        PrintEndTableRow();
+        goto out;
+    }
+
+    found_json = true;
+
+    PrintBeginTableRow();
+    PrintTableElement("");
+    PrintTableElement("API Version");
+    if (!root["ICD"]["api_version"].isNull()) {
+        PrintTableElement(root["ICD"]["api_version"].asString());
+    } else {
+        PrintTableElement("MISSING!");
+    }
+    PrintEndTableRow();
+
+    PrintBeginTableRow();
+    PrintTableElement("");
+    PrintTableElement("Library Path");
+    if (!root["ICD"]["library_path"].isNull()) {
+        std::string driver_name = root["ICD"]["library_path"].asString();
+        PrintTableElement(driver_name);
+        PrintEndTableRow();
+    }*/
+    return true;
+}
+
 VKAPI_ATTR void VKAPI_CALL
 spoof_GetOriginalPhysicalDeviceLimitsEXT(VkPhysicalDevice physicalDevice, VkPhysicalDeviceLimits *orgLimits) {
     //unwrapping the physicalDevice in order to get the same physicalDevice address which loader wraps
@@ -288,6 +378,8 @@ spoof_CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocation
 
     std::lock_guard<std::mutex> lock(global_lock);
 
+    ReadDriverJson();
+    
     assert(chain_info->u.pLayerInfo);
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
     PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance)fpGetInstanceProcAddr(NULL, "vkCreateInstance");
