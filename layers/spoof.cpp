@@ -252,12 +252,36 @@ spoof_LayerSpoofEXT(VkPhysicalDevice physicalDevice) {
     return VK_SUCCESS;
 }
 
-//bool ReadDriverJson(std::string cur_driver_json, bool &found_lib) {
-bool ReadDriverJson(void) {
+bool loadSpoofPhysicalLimits(Json::Value deviceLimits, VkPhysicalDevice physicalDevice) {
+    //memcpy(&(spoof_dev_data_map[unwrapped_phys_dev].props->limits), newLimits, sizeof(VkPhysicalDeviceLimits));
+
+    spoof_dev_data_map[physicalDevice].props = (VkPhysicalDeviceProperties*)malloc(sizeof(VkPhysicalDeviceProperties));
+    if(!spoof_dev_data_map[physicalDevice].props)
+    {
+        fprintf(stderr, "ARDA out of mem\n");
+        return false;
+    }
+    
+    //std::string maxImageDimension1D = deviceLimits["maxImageDimension1D"].asString();
+    //printf("ARDA GAGA see %s \n", maxImageDimension1D.c_str());
+    //printf("ARDA GAGA see %d \n",std::strtoul(deviceLimits["maxImageDimension1D"].asString().c_str(), nullptr,10));
+    printf("ARDA GAGA see %d \n",std::strtoul(deviceLimits["maxImageDimension1D"].asCString(), nullptr,10));
+    spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D = 
+                                                         std::strtoul(deviceLimits["maxImageDimension1D"].asCString(), nullptr,10);
+    //test
+    spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D--;
+    spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D--;
+    spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D--;
+    //printf("ARDA GAGA:%d \n",spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D);
+    
+    return true;
+}
+
+bool readSpoofJson(VkPhysicalDevice physicalDevice) {
     bool found_json = false;
     std::ifstream *stream = NULL;
     Json::Value root = Json::nullValue;
-    Json::Value inst_exts = Json::nullValue;
+    Json::Value limits = Json::nullValue;
     Json::Value dev_exts = Json::nullValue;
     Json::Reader reader;
     //char full_json_path[100]="/home/arda/workspace/vulkanreport.json";
@@ -302,6 +326,11 @@ bool ReadDriverJson(void) {
     } else {
         printf("ARDA MISSING!\n");
     }
+    limits = root["devicelimits"];
+    if (!limits.isNull()) {
+        loadSpoofPhysicalLimits(limits, physicalDevice);
+    }
+
     printf("ARDA JSON File 4\n");
 
 /*
@@ -412,8 +441,6 @@ spoof_CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocation
 
     std::lock_guard<std::mutex> lock(global_lock);
 
-    ReadDriverJson();
-    
     assert(chain_info->u.pLayerInfo);
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
     PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance)fpGetInstanceProcAddr(NULL, "vkCreateInstance");
@@ -443,6 +470,8 @@ spoof_CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocation
     if (err)
         printf("VK_LAYER_LUNARG_Spoof: ERRRR2\n");
 
+    readSpoofJson(physicalDevices[0]);
+    /*
     for (uint8_t i = 0; i < physicalDeviceCount; i++) {
         //search if we got the device limits for this device and stored in spoof layer
         auto spoof_data_it = spoof_dev_data_map.find(physicalDevices[i]);
@@ -457,7 +486,8 @@ spoof_CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocation
                 printf(" Out of Memory \n");
             }
         }
-    }    
+    } 
+    */
     printf("VK_LAYER_LUNARG_Spoof: Completed wrapped vkCreateInstance() call w/ inst: %p\n", *pInstance);
 
     return result;
