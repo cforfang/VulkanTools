@@ -91,6 +91,7 @@ if(WIN32)
        )
    file(COPY cube.vcxproj.user DESTINATION ${CMAKE_BINARY_DIR}/demos)
    file(COPY vulkaninfo.vcxproj.user DESTINATION ${CMAKE_BINARY_DIR}/demos)
+   file(COPY vulkanspoofedinfo.vcxproj.user DESTINATION ${CMAKE_BINARY_DIR}/demos)
 else()
     if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL ${CMAKE_HOST_SYSTEM_PROCESSOR})
         add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/demos/cube-vert.spv
@@ -111,6 +112,9 @@ endif()
 
 add_executable(${API_LOWERCASE}info vulkaninfo.c)
 target_link_libraries(${API_LOWERCASE}info ${LIBRARIES})
+
+add_executable(${API_LOWERCASE}spoofedinfo vulkanspoofedinfo.c)
+target_link_libraries(${API_LOWERCASE}spoofedinfo ${LIBRARIES})
 
 if(NOT WIN32)
     if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL ${CMAKE_HOST_SYSTEM_PROCESSOR})
