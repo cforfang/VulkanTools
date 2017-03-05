@@ -266,8 +266,118 @@ bool loadSpoofPhysicalLimits(Json::Value deviceLimits, VkPhysicalDevice physical
     //printf("ARDA GAGA see %s \n", maxImageDimension1D.c_str());
     //printf("ARDA GAGA see %d \n",std::strtoul(deviceLimits["maxImageDimension1D"].asString().c_str(), nullptr,10));
     printf("ARDA GAGA see %d \n",std::strtoul(deviceLimits["maxImageDimension1D"].asCString(), nullptr,10));
-    spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D = 
-                                                         std::strtoul(deviceLimits["maxImageDimension1D"].asCString(), nullptr,10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D =
+                                                         std::strtoul(deviceLimits["maxImageDimension1D"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension2D =
+                                                         std::strtoul(deviceLimits["maxImageDimension2D"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension3D =
+                                                         std::strtoul(deviceLimits["maxImageDimension3D"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxImageDimensionCube =
+                                                       std::strtoul(deviceLimits["maxImageDimensionCube"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxImageArrayLayers =
+                                                         std::strtoul(deviceLimits["maxImageArrayLayers"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxTexelBufferElements = 
+                                                      std::strtoul(deviceLimits["maxTexelBufferElements"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxUniformBufferRange = 
+                                                       std::strtoul(deviceLimits["maxUniformBufferRange"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxStorageBufferRange = 
+                                                       std::strtoul(deviceLimits["maxStorageBufferRange"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxPushConstantsSize = 
+                                                        std::strtoul(deviceLimits["maxPushConstantsSize"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxMemoryAllocationCount = 
+                                                    std::strtoul(deviceLimits["maxMemoryAllocationCount"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxSamplerAllocationCount = 
+                                                   std::strtoul(deviceLimits["maxSamplerAllocationCount"].asCString(), nullptr, 10);
+
+
+
+    spoof_dev_data_map[physicalDevice].props->limits.bufferImageGranularity =
+                                                         std::strtoul(deviceLimits["bufferImageGranularity"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.sparseAddressSpaceSize =
+                                                         std::strtoul(deviceLimits["sparseAddressSpaceSize"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxBoundDescriptorSets =
+                                                         std::strtoul(deviceLimits["maxBoundDescriptorSets"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxPerStageDescriptorSamplers =
+                                                       std::strtoul(deviceLimits["maxPerStageDescriptorSamplers"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxPerStageDescriptorUniformBuffers =
+                                                         std::strtoul(deviceLimits["maxPerStageDescriptorUniformBuffers"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxPerStageDescriptorStorageBuffers = 
+                                                      std::strtoul(deviceLimits["maxPerStageDescriptorStorageBuffers"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxPerStageDescriptorSampledImages = 
+                                                       std::strtoul(deviceLimits["maxPerStageDescriptorSampledImages"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxPerStageDescriptorStorageImages = 
+                                                       std::strtoul(deviceLimits["maxPerStageDescriptorStorageImages"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxPerStageDescriptorInputAttachments = 
+                                                        std::strtoul(deviceLimits["maxPerStageDescriptorInputAttachments"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxPerStageResources = 
+                                                    std::strtoul(deviceLimits["maxPerStageResources"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxDescriptorSetSamplers = 
+                                                   std::strtoul(deviceLimits["maxDescriptorSetSamplers"].asCString(), nullptr, 10);
+
+    spoof_dev_data_map[physicalDevice].props->limits.maxDescriptorSetUniformBuffers =
+         std::strtoul(deviceLimits["maxDescriptorSetUniformBuffers"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxDescriptorSetUniformBuffersDynamic =
+         std::strtoul(deviceLimits["maxDescriptorSetUniformBuffersDynamic"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxDescriptorSetStorageBuffers =
+         std::strtoul(deviceLimits["maxDescriptorSetStorageBuffers"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxDescriptorSetStorageBuffersDynamic =
+         std::strtoul(deviceLimits["maxDescriptorSetStorageBuffersDynamic"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxDescriptorSetSampledImages =
+         std::strtoul(deviceLimits["maxDescriptorSetSampledImages"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxDescriptorSetStorageImages = 
+         std::strtoul(deviceLimits["maxDescriptorSetStorageImages"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxDescriptorSetInputAttachments = 
+         std::strtoul(deviceLimits["maxDescriptorSetInputAttachments"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxVertexInputAttributes = 
+         std::strtoul(deviceLimits["maxVertexInputAttributes"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxVertexInputBindings = 
+         std::strtoul(deviceLimits["maxVertexInputBindings"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxVertexInputAttributeOffset = 
+         std::strtoul(deviceLimits["maxVertexInputAttributeOffset"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxVertexInputBindingStride = 
+                                                   std::strtoul(deviceLimits["maxVertexInputBindingStride"].asCString(), nullptr, 10);
+
+    spoof_dev_data_map[physicalDevice].props->limits.maxVertexOutputComponents =
+        std::strtoul(deviceLimits["maxVertexOutputComponents"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxTessellationGenerationLevel =
+        std::strtoul(deviceLimits["maxTessellationGenerationLevel"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxTessellationPatchSize =
+        std::strtoul(deviceLimits["maxTessellationPatchSize"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxTessellationControlPerVertexInputComponents =
+        std::strtoul(deviceLimits["maxTessellationControlPerVertexInputComponents"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxTessellationControlPerVertexOutputComponents =
+        std::strtoul(deviceLimits["maxTessellationControlPerVertexOutputComponents"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxTessellationControlPerPatchOutputComponents = 
+        std::strtoul(deviceLimits["maxTessellationControlPerPatchOutputComponents"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxTessellationControlTotalOutputComponents = 
+        std::strtoul(deviceLimits["maxTessellationControlTotalOutputComponents"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxTessellationEvaluationInputComponents = 
+        std::strtoul(deviceLimits["maxTessellationEvaluationInputComponents"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxTessellationEvaluationOutputComponents = 
+        std::strtoul(deviceLimits["maxTessellationEvaluationOutputComponents"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxGeometryShaderInvocations = 
+        std::strtoul(deviceLimits["maxGeometryShaderInvocations"].asCString(), nullptr, 10);
+    
+    spoof_dev_data_map[physicalDevice].props->limits.maxGeometryInputComponents =
+        std::strtoul(deviceLimits["maxGeometryInputComponents"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxGeometryOutputComponents =
+        std::strtoul(deviceLimits["maxGeometryOutputComponents"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxGeometryOutputVertices =
+        std::strtoul(deviceLimits["maxGeometryOutputVertices"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxGeometryTotalOutputComponents =
+        std::strtoul(deviceLimits["maxGeometryTotalOutputComponents"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxFragmentInputComponents =
+        std::strtoul(deviceLimits["maxFragmentInputComponents"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxFragmentOutputAttachments = 
+        std::strtoul(deviceLimits["maxFragmentOutputAttachments"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxFragmentDualSrcAttachments = 
+        std::strtoul(deviceLimits["maxFragmentDualSrcAttachments"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxFragmentCombinedOutputResources = 
+        std::strtoul(deviceLimits["maxFragmentCombinedOutputResources"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxComputeSharedMemorySize = 
+        std::strtoul(deviceLimits["maxComputeSharedMemorySize"].asCString(), nullptr, 10);
+    spoof_dev_data_map[physicalDevice].props->limits.maxComputeWorkGroupCount[0] = 
+        std::strtoul(deviceLimits["maxComputeWorkGroupCount[0]"].asCString(), nullptr, 10);
     //test
     spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D--;
     spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D--;
