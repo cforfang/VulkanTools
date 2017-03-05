@@ -178,7 +178,7 @@
     {
         "apiversion":"1.0.39",
         "deviceid":"6418",
-        "devicename":"Intel(R) HD Graphics 530 (Skylake GT2)",
+        "devicename":"Intel(R) HD Graphics 530 (Skylake GT2)SPOOFED",
         "devicetype":"INTEGRATED_GPU",
         "driverversion":"0.0.1",
         "driverversionraw":"1",

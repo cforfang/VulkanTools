@@ -72,152 +72,6 @@ static inline void local_free_getenv(const char *val) { free((void *)val); }
 static std::unordered_map<dispatch_key, VkInstance> spoof_instance_map;
 static std::mutex global_lock; // Protect map accesses and unique_id increments
 
-/*
-struct AppGpu {
-uint32_t id;
-VkPhysicalDevice obj;
-
-VkPhysicalDeviceProperties props;
-
-uint32_t queue_count;
-VkQueueFamilyProperties *queue_props;
-VkDeviceQueueCreateInfo *queue_reqs;
-
-VkPhysicalDeviceMemoryProperties memory_props;
-VkPhysicalDeviceFeatures features;
-VkPhysicalDevice limits;
-
-uint32_t device_extension_count;
-VkExtensionProperties *device_extensions;
-
-struct AppDev dev;
-};
-
-typedef struct VkPhysicalDeviceProperties {
-    uint32_t                            apiVersion;
-    uint32_t                            driverVersion;
-    uint32_t                            vendorID;
-    uint32_t                            deviceID;
-    VkPhysicalDeviceType                deviceType;
-    char                                deviceName[VK_MAX_PHYSICAL_DEVICE_NAME_SIZE];
-    uint8_t                             pipelineCacheUUID[VK_UUID_SIZE];
-    VkPhysicalDeviceLimits              limits;
-    VkPhysicalDeviceSparseProperties    sparseProperties;
-} VkPhysicalDeviceProperties;
-
-The VkPhysicalDeviceLimits are properties of the physical device.These are available in the limits member of the 
-VkPhysicalDeviceProperties structure which is returned from vkGetPhysicalDeviceProperties.
-
-typedef struct VkPhysicalDeviceLimits {
-uint32_t              maxImageDimension1D;
-uint32_t              maxImageDimension2D;
-uint32_t              maxImageDimension3D;
-uint32_t              maxImageDimensionCube;
-uint32_t              maxImageArrayLayers;
-uint32_t              maxTexelBufferElements;
-uint32_t              maxUniformBufferRange;
-uint32_t              maxStorageBufferRange;
-uint32_t              maxPushConstantsSize;
-uint32_t              maxMemoryAllocationCount;
-uint32_t              maxSamplerAllocationCount;
-VkDeviceSize          bufferImageGranularity;
-VkDeviceSize          sparseAddressSpaceSize;
-uint32_t              maxBoundDescriptorSets;
-uint32_t              maxPerStageDescriptorSamplers;
-uint32_t              maxPerStageDescriptorUniformBuffers;
-uint32_t              maxPerStageDescriptorStorageBuffers;
-uint32_t              maxPerStageDescriptorSampledImages;
-uint32_t              maxPerStageDescriptorStorageImages;
-uint32_t              maxPerStageDescriptorInputAttachments;
-uint32_t              maxPerStageResources;
-uint32_t              maxDescriptorSetSamplers;
-uint32_t              maxDescriptorSetUniformBuffers;
-uint32_t              maxDescriptorSetUniformBuffersDynamic;
-uint32_t              maxDescriptorSetStorageBuffers;
-uint32_t              maxDescriptorSetStorageBuffersDynamic;
-uint32_t              maxDescriptorSetSampledImages;
-uint32_t              maxDescriptorSetStorageImages;
-uint32_t              maxDescriptorSetInputAttachments;
-uint32_t              maxVertexInputAttributes;
-uint32_t              maxVertexInputBindings;
-uint32_t              maxVertexInputAttributeOffset;
-uint32_t              maxVertexInputBindingStride;
-uint32_t              maxVertexOutputComponents;
-uint32_t              maxTessellationGenerationLevel;
-uint32_t              maxTessellationPatchSize;
-uint32_t              maxTessellationControlPerVertexInputComponents;
-uint32_t              maxTessellationControlPerVertexOutputComponents;
-uint32_t              maxTessellationControlPerPatchOutputComponents;
-uint32_t              maxTessellationControlTotalOutputComponents;
-uint32_t              maxTessellationEvaluationInputComponents;
-uint32_t              maxTessellationEvaluationOutputComponents;
-uint32_t              maxGeometryShaderInvocations;
-uint32_t              maxGeometryInputComponents;
-uint32_t              maxGeometryOutputComponents;
-uint32_t              maxGeometryOutputVertices;
-uint32_t              maxGeometryTotalOutputComponents;
-uint32_t              maxFragmentInputComponents;
-uint32_t              maxFragmentOutputAttachments;
-uint32_t              maxFragmentDualSrcAttachments;
-uint32_t              maxFragmentCombinedOutputResources;
-uint32_t              maxComputeSharedMemorySize;
-uint32_t              maxComputeWorkGroupCount[3];
-uint32_t              maxComputeWorkGroupInvocations;
-uint32_t              maxComputeWorkGroupSize[3];
-uint32_t              subPixelPrecisionBits;
-uint32_t              subTexelPrecisionBits;
-uint32_t              mipmapPrecisionBits;
-uint32_t              maxDrawIndexedIndexValue;
-uint32_t              maxDrawIndirectCount;
-float                 maxSamplerLodBias;
-float                 maxSamplerAnisotropy;
-uint32_t              maxViewports;
-uint32_t              maxViewportDimensions[2];
-float                 viewportBoundsRange[2];
-uint32_t              viewportSubPixelBits;
-size_t                minMemoryMapAlignment;
-VkDeviceSize          minTexelBufferOffsetAlignment;
-VkDeviceSize          minUniformBufferOffsetAlignment;
-VkDeviceSize          minStorageBufferOffsetAlignment;
-int32_t               minTexelOffset;
-uint32_t              maxTexelOffset;
-int32_t               minTexelGatherOffset;
-uint32_t              maxTexelGatherOffset;
-float                 minInterpolationOffset;
-float                 maxInterpolationOffset;
-uint32_t              subPixelInterpolationOffsetBits;
-uint32_t              maxFramebufferWidth;
-uint32_t              maxFramebufferHeight;
-uint32_t              maxFramebufferLayers;
-VkSampleCountFlags    framebufferColorSampleCounts;
-VkSampleCountFlags    framebufferDepthSampleCounts;
-VkSampleCountFlags    framebufferStencilSampleCounts;
-VkSampleCountFlags    framebufferNoAttachmentsSampleCounts;
-uint32_t              maxColorAttachments;
-VkSampleCountFlags    sampledImageColorSampleCounts;
-VkSampleCountFlags    sampledImageIntegerSampleCounts;
-VkSampleCountFlags    sampledImageDepthSampleCounts;
-VkSampleCountFlags    sampledImageStencilSampleCounts;
-VkSampleCountFlags    storageImageSampleCounts;
-uint32_t              maxSampleMaskWords;
-VkBool32              timestampComputeAndGraphics;
-float                 timestampPeriod;
-uint32_t              maxClipDistances;
-uint32_t              maxCullDistances;
-uint32_t              maxCombinedClipAndCullDistances;
-uint32_t              discreteQueuePriorities;
-float                 pointSizeRange[2];
-float                 lineWidthRange[2];
-float                 pointSizeGranularity;
-float                 lineWidthGranularity;
-VkBool32              strictLines;
-VkBool32              standardSampleLocations;
-VkDeviceSize          optimalBufferCopyOffsetAlignment;
-VkDeviceSize          optimalBufferCopyRowPitchAlignment;
-VkDeviceSize          nonCoherentAtomSize;
-} VkPhysicalDeviceLimits;
-*/
-
 struct spoof_data{
     VkPhysicalDeviceProperties *props;
 
@@ -252,35 +106,228 @@ spoof_LayerSpoofEXT(VkPhysicalDevice physicalDevice) {
     return VK_SUCCESS;
 }
 
-bool loadSpoofPhysicalLimits(Json::Value deviceLimits, VkPhysicalDevice physicalDevice) {
-    //memcpy(&(spoof_dev_data_map[unwrapped_phys_dev].props->limits), newLimits, sizeof(VkPhysicalDeviceLimits));
+bool loadSpoofPhysicalDeviceProperties(Json::Value deviceProperties, VkPhysicalDevice physicalDevice) {
 
-    spoof_dev_data_map[physicalDevice].props = (VkPhysicalDeviceProperties*)malloc(sizeof(VkPhysicalDeviceProperties));
-    if(!spoof_dev_data_map[physicalDevice].props)
-    {
-        fprintf(stderr, "ARDA out of mem\n");
+    printf("ARDA GAGA HERE\n");
+    if (deviceProperties.isNull()) {
+        fprintf(stderr, "Spoof physical Device Properties DB not set\n");
         return false;
     }
-	memset(&(spoof_dev_data_map[physicalDevice].props), 0, sizeof(VkPhysicalDeviceProperties));
-    
-    //std::string maxImageDimension1D = deviceLimits["maxImageDimension1D"].asString();
-    //printf("ARDA GAGA see %s \n", maxImageDimension1D.c_str());
-    //printf("ARDA GAGA see %d \n",std::strtoul(deviceLimits["maxImageDimension1D"].asString().c_str(), nullptr,10));
-    printf("ARDA GAGA see %d \n",std::strtoul(deviceLimits["maxImageDimension1D"].asCString(), nullptr,10));
-    spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D =
-                                                         std::strtoul(deviceLimits["maxImageDimension1D"].asCString(), nullptr, 10);
-    
-#define LIMITARGS(r) spoof_dev_data_map[physicalDevice].props->limits.r = \
-                                                            std::strtoul(deviceLimits[#r].asCString(), nullptr, 10);
 
-	//LIMITARGS(maxImageDimension2D)
-    //LIMITARGS(maxImageDimension2D)
+    if (!spoof_dev_data_map[physicalDevice].props) {
+        fprintf(stderr, "Spoof data for this physical Device not set\n");
+        return false;
+    }
+
+//#define VK_VERSION_MAJOR(version) ((uint32_t)(version) >> 22)
+//#define VK_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3ff)
+//#define VK_VERSION_PATCH(version) ((uint32_t)(version) & 0xfff)
+//#define VK_MAKE_VERSION(major, minor, patch) \
+    (((major) << 22) | ((minor) << 12) | (patch))
+
+     printf("ARDA GAGA HERE2:: %d \n", spoof_dev_data_map[physicalDevice].props->apiVersion);
+     printf("ARDA GAGA HERE2:: %s \n", deviceProperties["apiversion"].asCString());
+     char versionstr[10] = "00.00.00";
+     char major[3] = "1";
+     char minor[3] = "0";
+     char patch[3] = "99";
+     strncpy(versionstr,
+     while(
+     
+     printf("ARDA GAGA HERE2:: %d \n", spoof_dev_data_map[physicalDevice].props->driverVersion);
+    //Device Properties set
+    if (!deviceProperties["apiversion"].isNull()) 
+        spoof_dev_data_map[physicalDevice].props->apiVersion = std::strtoul(deviceProperties["apiversion"].asCString(), nullptr, 10);
+    printf("ARDA GAGA HERE:: %d \n", spoof_dev_data_map[physicalDevice].props->apiVersion);
+    if (!deviceProperties["driverversion"].isNull()) 
+        spoof_dev_data_map[physicalDevice].props->driverVersion = 
+                                                              std::strtoul(deviceProperties["driverversion"].asCString(), nullptr, 10);
+    printf("ARDA GAGA HERE:: %d \n", spoof_dev_data_map[physicalDevice].props->driverVersion);
+    if (!deviceProperties["vendorid"].isNull()) 
+        spoof_dev_data_map[physicalDevice].props->vendorID = std::strtoul(deviceProperties["vendorid"].asCString(), nullptr, 10);
+    if (!deviceProperties["deviceid"].isNull()) 
+        spoof_dev_data_map[physicalDevice].props->deviceID = std::strtoul(deviceProperties["deviceid"].asCString(), nullptr, 10);
+
+    //VkPhysicalDeviceType
+    if (!deviceProperties["devicetype"].isNull()) {
+        if (!strcmp(deviceProperties["devicetype"].asCString(), "OTHER"))
+            spoof_dev_data_map[physicalDevice].props->deviceType = VK_PHYSICAL_DEVICE_TYPE_OTHER;
+        else if (!strcmp(deviceProperties["devicetype"].asCString(), "INTEGRATED_GPU"))
+            spoof_dev_data_map[physicalDevice].props->deviceType = VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
+        else if (!strcmp(deviceProperties["devicetype"].asCString(), "DISCRETE_GPU"))
+            spoof_dev_data_map[physicalDevice].props->deviceType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+        else if (!strcmp(deviceProperties["devicetype"].asCString(), "VIRTUAL_GPU"))
+            spoof_dev_data_map[physicalDevice].props->deviceType = VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU;
+        else if (!strcmp(deviceProperties["devicetype"].asCString(), "CPU"))
+            spoof_dev_data_map[physicalDevice].props->deviceType = VK_PHYSICAL_DEVICE_TYPE_CPU;
+    }
+
+    //devicename
+    if(!deviceProperties["devicename"].isNull())
+        //strncpy
+        strcpy(spoof_dev_data_map[physicalDevice].props->deviceName, deviceProperties["devicename"].asCString());
+
+    printf("ARDA GAGA HERE:: %s \n", spoof_dev_data_map[physicalDevice].props->deviceName);
+    //This Field is in Vulkan.h but Not in DB
+    //uint8_t  pipelineCacheUUID[VK_UUID_SIZE];
+
+    //VkPhysicalDeviceSparseProperties Fields
+#define PROPERTIESUINTSPARSEARGS(r)    if(!deviceProperties[#r].isNull()) \
+    spoof_dev_data_map[physicalDevice].props->sparseProperties.r = std::strtoul(deviceProperties[#r].asCString(), nullptr, 10)
+    PROPERTIESUINTSPARSEARGS(residencyAlignedMipSize);
+    PROPERTIESUINTSPARSEARGS(residencyNonResidentStrict);
+    PROPERTIESUINTSPARSEARGS(residencyStandard2DBlockShape);
+    PROPERTIESUINTSPARSEARGS(residencyStandard3DBlockShape);
+    //This is also VkPhysicalDeviceSparseProperties field but DB name is different than variable
+    if(!deviceProperties["residencyStandard2DMSBlockShape"].isNull()) \
+        spoof_dev_data_map[physicalDevice].props->sparseProperties.residencyStandard2DMultisampleBlockShape =
+                                            std::strtoul(deviceProperties["residencyStandard2DMSBlockShape"].asCString(), nullptr, 10);
+
+    //These field are in DB but no in vulkan.h
+    //PROPERTIESARGS(driverversionraw);
+    //PROPERTIESARGS(headerversion);
+
+    return true;
+}
+
+bool loadSpoofPhysicalLimits(Json::Value deviceLimits, VkPhysicalDevice physicalDevice) {
+
+    if (deviceLimits.isNull()) {
+        fprintf(stderr, "Spoof physical Device limits DB not set\n");
+        return false;
+    }
+        
+    if (!spoof_dev_data_map[physicalDevice].props) {
+        fprintf(stderr, "Spoof data for this physical Device not set\n");
+        return false;
+    }
+
+    //spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D =
+    //    std::strtoul(deviceLimits["maxImageDimension1D"].asCString(), nullptr, 10);
+
+#define LIMITARGS(r) if(!deviceLimits[#r].isNull()) \
+                         spoof_dev_data_map[physicalDevice].props->limits.r = std::strtoul(deviceLimits[#r].asCString(), nullptr, 10)
+    LIMITARGS(maxImageDimension1D);
+    LIMITARGS(maxImageDimension1D);
+    LIMITARGS(maxImageDimension2D);
+    LIMITARGS(maxImageDimension3D);
+    LIMITARGS(maxImageDimensionCube);
+    LIMITARGS(maxImageArrayLayers);
+    LIMITARGS(maxTexelBufferElements);
+    LIMITARGS(maxUniformBufferRange);
+    LIMITARGS(maxStorageBufferRange);
+    LIMITARGS(maxPushConstantsSize);
+    LIMITARGS(maxMemoryAllocationCount);
+    LIMITARGS(maxSamplerAllocationCount);
+    LIMITARGS(bufferImageGranularity);
+    LIMITARGS(sparseAddressSpaceSize);
+    LIMITARGS(maxBoundDescriptorSets);
+    LIMITARGS(maxPerStageDescriptorSamplers);
+    LIMITARGS(maxPerStageDescriptorUniformBuffers);
+    LIMITARGS(maxPerStageDescriptorStorageBuffers);
+    LIMITARGS(maxPerStageDescriptorSampledImages);
+    LIMITARGS(maxPerStageDescriptorStorageImages);
+    LIMITARGS(maxPerStageDescriptorInputAttachments);
+    LIMITARGS(maxPerStageResources);
+    LIMITARGS(maxDescriptorSetSamplers);
+    LIMITARGS(maxDescriptorSetUniformBuffers);
+    LIMITARGS(maxDescriptorSetUniformBuffersDynamic);
+    LIMITARGS(maxDescriptorSetStorageBuffers);
+    LIMITARGS(maxDescriptorSetStorageBuffersDynamic);
+    LIMITARGS(maxDescriptorSetSampledImages);
+    LIMITARGS(maxDescriptorSetStorageImages);
+    LIMITARGS(maxDescriptorSetInputAttachments);
+    LIMITARGS(maxVertexInputAttributes);
+    LIMITARGS(maxVertexInputBindings);
+    LIMITARGS(maxVertexInputAttributeOffset);
+    LIMITARGS(maxVertexInputBindingStride);
+    LIMITARGS(maxVertexOutputComponents);
+    LIMITARGS(maxTessellationGenerationLevel);
+    LIMITARGS(maxTessellationPatchSize);
+    LIMITARGS(maxTessellationControlPerVertexInputComponents);
+    LIMITARGS(maxTessellationControlPerVertexOutputComponents);
+    LIMITARGS(maxTessellationControlPerPatchOutputComponents);
+    LIMITARGS(maxTessellationControlTotalOutputComponents);
+    LIMITARGS(maxTessellationEvaluationInputComponents);
+    LIMITARGS(maxTessellationEvaluationOutputComponents);
+    LIMITARGS(maxGeometryShaderInvocations);
+    LIMITARGS(maxGeometryInputComponents);
+    LIMITARGS(maxGeometryOutputComponents);
+    LIMITARGS(maxGeometryOutputVertices);
+    LIMITARGS(maxGeometryTotalOutputComponents);
+    LIMITARGS(maxFragmentInputComponents);
+    LIMITARGS(maxFragmentOutputAttachments);
+    LIMITARGS(maxFragmentDualSrcAttachments);
+    LIMITARGS(maxFragmentCombinedOutputResources);
+    LIMITARGS(maxComputeSharedMemorySize);
+    LIMITARGS(maxComputeWorkGroupCount[0]);
+    LIMITARGS(maxComputeWorkGroupCount[1]);
+    LIMITARGS(maxComputeWorkGroupCount[2]);
+    LIMITARGS(maxComputeWorkGroupInvocations);
+    LIMITARGS(maxComputeWorkGroupSize[0]);
+    LIMITARGS(maxComputeWorkGroupSize[1]);
+    LIMITARGS(maxComputeWorkGroupSize[2]);
+    LIMITARGS(subPixelPrecisionBits);
+    LIMITARGS(subTexelPrecisionBits);
+    LIMITARGS(mipmapPrecisionBits);
+    LIMITARGS(maxDrawIndexedIndexValue);
+    LIMITARGS(maxDrawIndirectCount);
+    LIMITARGS(maxSamplerLodBias);
+    LIMITARGS(maxSamplerAnisotropy);
+    LIMITARGS(maxViewports);
+    LIMITARGS(maxViewportDimensions[0]);
+    LIMITARGS(maxViewportDimensions[1]);
+    LIMITARGS(viewportBoundsRange[0]);
+    LIMITARGS(viewportBoundsRange[1]);
+    LIMITARGS(viewportSubPixelBits);
+    LIMITARGS(minMemoryMapAlignment);
+    LIMITARGS(minTexelBufferOffsetAlignment);
+    LIMITARGS(minUniformBufferOffsetAlignment);
+    LIMITARGS(minStorageBufferOffsetAlignment);
+    LIMITARGS(minTexelOffset);
+    LIMITARGS(maxTexelOffset);
+    LIMITARGS(minTexelGatherOffset);
+    LIMITARGS(maxTexelGatherOffset);
+    LIMITARGS(minInterpolationOffset);
+    LIMITARGS(maxInterpolationOffset);
+    LIMITARGS(subPixelInterpolationOffsetBits);
+    LIMITARGS(maxFramebufferWidth);
+    LIMITARGS(maxFramebufferHeight);
+    LIMITARGS(maxFramebufferLayers);
+    LIMITARGS(framebufferColorSampleCounts);
+    LIMITARGS(framebufferDepthSampleCounts);
+    LIMITARGS(framebufferStencilSampleCounts);
+    LIMITARGS(framebufferNoAttachmentsSampleCounts);
+    LIMITARGS(maxColorAttachments);
+    LIMITARGS(sampledImageColorSampleCounts);
+    LIMITARGS(sampledImageIntegerSampleCounts);
+    LIMITARGS(sampledImageDepthSampleCounts);
+    LIMITARGS(sampledImageStencilSampleCounts);
+    LIMITARGS(storageImageSampleCounts);
+    LIMITARGS(maxSampleMaskWords);
+    LIMITARGS(timestampComputeAndGraphics);
+    LIMITARGS(timestampPeriod);
+    LIMITARGS(maxClipDistances);
+    LIMITARGS(maxCullDistances);
+    LIMITARGS(maxCombinedClipAndCullDistances);
+    LIMITARGS(discreteQueuePriorities);
+    LIMITARGS(pointSizeRange[0]);
+    LIMITARGS(pointSizeRange[1]);
+    LIMITARGS(lineWidthRange[0]);
+    LIMITARGS(lineWidthRange[1]);
+    LIMITARGS(pointSizeGranularity);
+    LIMITARGS(lineWidthGranularity);
+    LIMITARGS(strictLines);
+    LIMITARGS(standardSampleLocations);
+    LIMITARGS(optimalBufferCopyOffsetAlignment);
+    LIMITARGS(optimalBufferCopyRowPitchAlignment);
+    LIMITARGS(nonCoherentAtomSize);
+
     //test
     spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D--;
     spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D--;
     spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D--;
-    //printf("ARDA GAGA:%d \n",spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D);
-    
+
     return true;
 }
 
@@ -288,7 +335,6 @@ bool readSpoofJson(VkPhysicalDevice physicalDevice) {
     bool found_json = false;
     std::ifstream *stream = NULL;
     Json::Value root = Json::nullValue;
-    Json::Value limits = Json::nullValue;
     Json::Value dev_exts = Json::nullValue;
     Json::Reader reader;
     //char full_json_path[100]="/home/arda/workspace/vulkanreport.json";
@@ -311,7 +357,6 @@ bool readSpoofJson(VkPhysicalDevice physicalDevice) {
         printf("GAGA: %s\n", full_json_path);
 
     }
-    
     printf("ARDA JSON File 2\n");
 
     if (!reader.parse(*stream, root, false) || root.isNull()) {
@@ -333,6 +378,14 @@ bool readSpoofJson(VkPhysicalDevice physicalDevice) {
     } else {
         printf("ARDA MISSING!\n");
     }
+
+    Json::Value properties = Json::nullValue;
+    properties = root["deviceproperties"];
+    if (!properties.isNull()) {
+        loadSpoofPhysicalDeviceProperties(properties, physicalDevice);
+    }
+
+    Json::Value limits = Json::nullValue;
     limits = root["devicelimits"];
     if (!limits.isNull()) {
         loadSpoofPhysicalLimits(limits, physicalDevice);
@@ -340,36 +393,6 @@ bool readSpoofJson(VkPhysicalDevice physicalDevice) {
 
     printf("ARDA JSON File 4\n");
 
-/*
-    if (root["ICD"].isNull()) {
-        PrintBeginTableRow();
-        PrintTableElement("");
-        PrintTableElement("ICD Section");
-        PrintTableElement("MISSING!");
-        PrintEndTableRow();
-        goto out;
-    }
-
-    found_json = true;
-
-    PrintBeginTableRow();
-    PrintTableElement("");
-    PrintTableElement("API Version");
-    if (!root["ICD"]["api_version"].isNull()) {
-        PrintTableElement(root["ICD"]["api_version"].asString());
-    } else {
-        PrintTableElement("MISSING!");
-    }
-    PrintEndTableRow();
-
-    PrintBeginTableRow();
-    PrintTableElement("");
-    PrintTableElement("Library Path");
-    if (!root["ICD"]["library_path"].isNull()) {
-        std::string driver_name = root["ICD"]["library_path"].asString();
-        PrintTableElement(driver_name);
-        PrintEndTableRow();
-    }*/
     return true;
 }
 
@@ -477,8 +500,7 @@ spoof_CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocation
     if (err)
         printf("VK_LAYER_LUNARG_Spoof: ERRRR2\n");
 
-    readSpoofJson(physicalDevices[0]);
-    /*
+    //first of all get original physical device limits
     for (uint8_t i = 0; i < physicalDeviceCount; i++) {
         //search if we got the device limits for this device and stored in spoof layer
         auto spoof_data_it = spoof_dev_data_map.find(physicalDevices[i]);
@@ -488,13 +510,15 @@ spoof_CreateInstance(const VkInstanceCreateInfo *pCreateInfo, const VkAllocation
             if (spoof_dev_data_map[physicalDevices[i]].props) {
                 instance_dispatch_table(*pInstance)->GetPhysicalDeviceProperties(physicalDevices[i],
                                                                                       spoof_dev_data_map[physicalDevices[i]].props);
+                //now overwrite the props from spoofing HW
+                readSpoofJson(physicalDevices[i]);
             }
             else {
                 printf(" Out of Memory \n");
             }
         }
     } 
-    */
+
     printf("VK_LAYER_LUNARG_Spoof: Completed wrapped vkCreateInstance() call w/ inst: %p\n", *pInstance);
 
     return result;
@@ -608,8 +632,7 @@ spoof_GetPhysicalDeviceProperties( VkPhysicalDevice physicalDevice, VkPhysicalDe
         if (spoof_data_it != spoof_dev_data_map.end()) {
             //spoof layer device limits exists for this device so overwrite with desired limits
             if(spoof_dev_data_map[physicalDevice].props)
-                memcpy( &(pProperties->limits), &(spoof_dev_data_map[physicalDevice].props->limits), 
-                                                                                              sizeof(VkPhysicalDeviceLimits));
+                memcpy(pProperties, spoof_dev_data_map[physicalDevice].props, sizeof(VkPhysicalDeviceProperties));
         } else {
             instance_dispatch_table(physicalDevice)->GetPhysicalDeviceProperties(physicalDevice, pProperties);
         }
