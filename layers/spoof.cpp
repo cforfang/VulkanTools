@@ -127,21 +127,67 @@ bool loadSpoofPhysicalDeviceProperties(Json::Value deviceProperties, VkPhysicalD
 
      printf("ARDA GAGA HERE2:: %d \n", spoof_dev_data_map[physicalDevice].props->apiVersion);
      printf("ARDA GAGA HERE2:: %s \n", deviceProperties["apiversion"].asCString());
+    
+     char *versionstr = strdup(deviceProperties["apiversion"].asCString());
+     char versionitems[10];
+     uint8_t shift = 0;
+     uint8_t i = 0;
+     uint8_t j = 0;
+     uint32_t major = 0;
+     uint32_t minor = 0;
+     uint32_t patch = 0;
+     while (versionstr[i] != '\0'){
+         if (versionstr[i] == '.'){
+             versionitems[j] = '\0';
+             apiversionraw |= (std::strtoul(minor, nullptr, 10))<<shift;
+             if (shift == 0)
+                 shift = 12;
+             else if(shift == 12)
+                 shift = 22;
+             j=0;
+             i++;
+             break;
+         }
+         versionitems[j] = versionstr[i];
+         i++;
+         j++
+     }
+     uint32_t apiversionraw = VK_MAKE_VERSION(major, minor, patch);
+     
+     /*
      char versionstr[10] = "00.00.00";
+     uint32_t apiversionraw = 0;
+     uint8_t verlen = strlen(deviceProperties["apiversion"].asCString());
      char major[3] = "1";
      char minor[3] = "0";
      char patch[3] = "99";
-     strncpy(versionstr,
-     while(
      
+     strncpy(versionstr,deviceProperties["apiversion"].asCString(),verlen+1);
+     uint8_t i = verlen;
+     patch[3]='\n';
+     patch[1]=versionstr[i--];
+     patch[0]=versionstr[i--];
+     apiversionraw |= std::strtoul(patch, nullptr, 10);
+     i--;
+     minor[3]='\n';
+     minor[1]=versionstr[i--];
+     minor[0]=versionstr[i--];
+     apiversionraw |= (std::strtoul(minor, nullptr, 10))<<12;
+     i--;
+     major[3]='\n';
+     major[1]=versionstr[i--];
+     major[0]=versionstr[i--];
+     apiversionraw |= (std::strtoul(major, nullptr, 10))<<22;
+     */
+     spoof_dev_data_map[physicalDevice].props->apiVersion = apiversionraw;
      printf("ARDA GAGA HERE2:: %d \n", spoof_dev_data_map[physicalDevice].props->driverVersion);
     //Device Properties set
     if (!deviceProperties["apiversion"].isNull()) 
         spoof_dev_data_map[physicalDevice].props->apiVersion = std::strtoul(deviceProperties["apiversion"].asCString(), nullptr, 10);
     printf("ARDA GAGA HERE:: %d \n", spoof_dev_data_map[physicalDevice].props->apiVersion);
-    if (!deviceProperties["driverversion"].isNull()) 
+    if (!deviceProperties["driverversionraw"].isNull()) 
         spoof_dev_data_map[physicalDevice].props->driverVersion = 
-                                                              std::strtoul(deviceProperties["driverversion"].asCString(), nullptr, 10);
+                                                           std::strtoul(deviceProperties["driverversionraw"].asCString(), nullptr, 10);
     printf("ARDA GAGA HERE:: %d \n", spoof_dev_data_map[physicalDevice].props->driverVersion);
     if (!deviceProperties["vendorid"].isNull()) 
         spoof_dev_data_map[physicalDevice].props->vendorID = std::strtoul(deviceProperties["vendorid"].asCString(), nullptr, 10);
@@ -202,126 +248,132 @@ bool loadSpoofPhysicalLimits(Json::Value deviceLimits, VkPhysicalDevice physical
         return false;
     }
 
-    //spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D =
-    //    std::strtoul(deviceLimits["maxImageDimension1D"].asCString(), nullptr, 10);
-
-#define LIMITARGS(r) if(!deviceLimits[#r].isNull()) \
+#define LIMITUINT32ARGS(r) if(!deviceLimits[#r].isNull()) \
                          spoof_dev_data_map[physicalDevice].props->limits.r = std::strtoul(deviceLimits[#r].asCString(), nullptr, 10)
-    LIMITARGS(maxImageDimension1D);
-    LIMITARGS(maxImageDimension1D);
-    LIMITARGS(maxImageDimension2D);
-    LIMITARGS(maxImageDimension3D);
-    LIMITARGS(maxImageDimensionCube);
-    LIMITARGS(maxImageArrayLayers);
-    LIMITARGS(maxTexelBufferElements);
-    LIMITARGS(maxUniformBufferRange);
-    LIMITARGS(maxStorageBufferRange);
-    LIMITARGS(maxPushConstantsSize);
-    LIMITARGS(maxMemoryAllocationCount);
-    LIMITARGS(maxSamplerAllocationCount);
-    LIMITARGS(bufferImageGranularity);
-    LIMITARGS(sparseAddressSpaceSize);
-    LIMITARGS(maxBoundDescriptorSets);
-    LIMITARGS(maxPerStageDescriptorSamplers);
-    LIMITARGS(maxPerStageDescriptorUniformBuffers);
-    LIMITARGS(maxPerStageDescriptorStorageBuffers);
-    LIMITARGS(maxPerStageDescriptorSampledImages);
-    LIMITARGS(maxPerStageDescriptorStorageImages);
-    LIMITARGS(maxPerStageDescriptorInputAttachments);
-    LIMITARGS(maxPerStageResources);
-    LIMITARGS(maxDescriptorSetSamplers);
-    LIMITARGS(maxDescriptorSetUniformBuffers);
-    LIMITARGS(maxDescriptorSetUniformBuffersDynamic);
-    LIMITARGS(maxDescriptorSetStorageBuffers);
-    LIMITARGS(maxDescriptorSetStorageBuffersDynamic);
-    LIMITARGS(maxDescriptorSetSampledImages);
-    LIMITARGS(maxDescriptorSetStorageImages);
-    LIMITARGS(maxDescriptorSetInputAttachments);
-    LIMITARGS(maxVertexInputAttributes);
-    LIMITARGS(maxVertexInputBindings);
-    LIMITARGS(maxVertexInputAttributeOffset);
-    LIMITARGS(maxVertexInputBindingStride);
-    LIMITARGS(maxVertexOutputComponents);
-    LIMITARGS(maxTessellationGenerationLevel);
-    LIMITARGS(maxTessellationPatchSize);
-    LIMITARGS(maxTessellationControlPerVertexInputComponents);
-    LIMITARGS(maxTessellationControlPerVertexOutputComponents);
-    LIMITARGS(maxTessellationControlPerPatchOutputComponents);
-    LIMITARGS(maxTessellationControlTotalOutputComponents);
-    LIMITARGS(maxTessellationEvaluationInputComponents);
-    LIMITARGS(maxTessellationEvaluationOutputComponents);
-    LIMITARGS(maxGeometryShaderInvocations);
-    LIMITARGS(maxGeometryInputComponents);
-    LIMITARGS(maxGeometryOutputComponents);
-    LIMITARGS(maxGeometryOutputVertices);
-    LIMITARGS(maxGeometryTotalOutputComponents);
-    LIMITARGS(maxFragmentInputComponents);
-    LIMITARGS(maxFragmentOutputAttachments);
-    LIMITARGS(maxFragmentDualSrcAttachments);
-    LIMITARGS(maxFragmentCombinedOutputResources);
-    LIMITARGS(maxComputeSharedMemorySize);
-    LIMITARGS(maxComputeWorkGroupCount[0]);
-    LIMITARGS(maxComputeWorkGroupCount[1]);
-    LIMITARGS(maxComputeWorkGroupCount[2]);
-    LIMITARGS(maxComputeWorkGroupInvocations);
-    LIMITARGS(maxComputeWorkGroupSize[0]);
-    LIMITARGS(maxComputeWorkGroupSize[1]);
-    LIMITARGS(maxComputeWorkGroupSize[2]);
-    LIMITARGS(subPixelPrecisionBits);
-    LIMITARGS(subTexelPrecisionBits);
-    LIMITARGS(mipmapPrecisionBits);
-    LIMITARGS(maxDrawIndexedIndexValue);
-    LIMITARGS(maxDrawIndirectCount);
-    LIMITARGS(maxSamplerLodBias);
-    LIMITARGS(maxSamplerAnisotropy);
-    LIMITARGS(maxViewports);
-    LIMITARGS(maxViewportDimensions[0]);
-    LIMITARGS(maxViewportDimensions[1]);
-    LIMITARGS(viewportBoundsRange[0]);
-    LIMITARGS(viewportBoundsRange[1]);
-    LIMITARGS(viewportSubPixelBits);
-    LIMITARGS(minMemoryMapAlignment);
-    LIMITARGS(minTexelBufferOffsetAlignment);
-    LIMITARGS(minUniformBufferOffsetAlignment);
-    LIMITARGS(minStorageBufferOffsetAlignment);
-    LIMITARGS(minTexelOffset);
-    LIMITARGS(maxTexelOffset);
-    LIMITARGS(minTexelGatherOffset);
-    LIMITARGS(maxTexelGatherOffset);
-    LIMITARGS(minInterpolationOffset);
-    LIMITARGS(maxInterpolationOffset);
-    LIMITARGS(subPixelInterpolationOffsetBits);
-    LIMITARGS(maxFramebufferWidth);
-    LIMITARGS(maxFramebufferHeight);
-    LIMITARGS(maxFramebufferLayers);
-    LIMITARGS(framebufferColorSampleCounts);
-    LIMITARGS(framebufferDepthSampleCounts);
-    LIMITARGS(framebufferStencilSampleCounts);
-    LIMITARGS(framebufferNoAttachmentsSampleCounts);
-    LIMITARGS(maxColorAttachments);
-    LIMITARGS(sampledImageColorSampleCounts);
-    LIMITARGS(sampledImageIntegerSampleCounts);
-    LIMITARGS(sampledImageDepthSampleCounts);
-    LIMITARGS(sampledImageStencilSampleCounts);
-    LIMITARGS(storageImageSampleCounts);
-    LIMITARGS(maxSampleMaskWords);
-    LIMITARGS(timestampComputeAndGraphics);
-    LIMITARGS(timestampPeriod);
-    LIMITARGS(maxClipDistances);
-    LIMITARGS(maxCullDistances);
-    LIMITARGS(maxCombinedClipAndCullDistances);
-    LIMITARGS(discreteQueuePriorities);
-    LIMITARGS(pointSizeRange[0]);
-    LIMITARGS(pointSizeRange[1]);
-    LIMITARGS(lineWidthRange[0]);
-    LIMITARGS(lineWidthRange[1]);
-    LIMITARGS(pointSizeGranularity);
-    LIMITARGS(lineWidthGranularity);
-    LIMITARGS(strictLines);
-    LIMITARGS(standardSampleLocations);
-    LIMITARGS(optimalBufferCopyOffsetAlignment);
-    LIMITARGS(optimalBufferCopyRowPitchAlignment);
-    LIMITARGS(nonCoherentAtomSize);
+    LIMITUINT32ARGS(maxImageDimension1D);
+    LIMITUINT32ARGS(maxImageDimension1D);
+    LIMITUINT32ARGS(maxImageDimension2D);
+    LIMITUINT32ARGS(maxImageDimension3D);
+    LIMITUINT32ARGS(maxImageDimensionCube);
+    LIMITUINT32ARGS(maxImageArrayLayers);
+    LIMITUINT32ARGS(maxTexelBufferElements);
+    LIMITUINT32ARGS(maxUniformBufferRange);
+    LIMITUINT32ARGS(maxStorageBufferRange);
+    LIMITUINT32ARGS(maxPushConstantsSize);
+    LIMITUINT32ARGS(maxMemoryAllocationCount);
+    LIMITUINT32ARGS(maxSamplerAllocationCount);
+    LIMITUINT32ARGS(maxBoundDescriptorSets);
+    LIMITUINT32ARGS(maxPerStageDescriptorSamplers);
+    LIMITUINT32ARGS(maxPerStageDescriptorUniformBuffers);
+    LIMITUINT32ARGS(maxPerStageDescriptorStorageBuffers);
+    LIMITUINT32ARGS(maxPerStageDescriptorSampledImages);
+    LIMITUINT32ARGS(maxPerStageDescriptorStorageImages);
+    LIMITUINT32ARGS(maxPerStageDescriptorInputAttachments);
+    LIMITUINT32ARGS(maxPerStageResources);
+    LIMITUINT32ARGS(maxDescriptorSetSamplers);
+    LIMITUINT32ARGS(maxDescriptorSetUniformBuffers);
+    LIMITUINT32ARGS(maxDescriptorSetUniformBuffersDynamic);
+    LIMITUINT32ARGS(maxDescriptorSetStorageBuffers);
+    LIMITUINT32ARGS(maxDescriptorSetStorageBuffersDynamic);
+    LIMITUINT32ARGS(maxDescriptorSetSampledImages);
+    LIMITUINT32ARGS(maxDescriptorSetStorageImages);
+    LIMITUINT32ARGS(maxDescriptorSetInputAttachments);
+    LIMITUINT32ARGS(maxVertexInputAttributes);
+    LIMITUINT32ARGS(maxVertexInputBindings);
+    LIMITUINT32ARGS(maxVertexInputAttributeOffset);
+    LIMITUINT32ARGS(maxVertexInputBindingStride);
+    LIMITUINT32ARGS(maxVertexOutputComponents);
+    LIMITUINT32ARGS(maxTessellationGenerationLevel);
+    LIMITUINT32ARGS(maxTessellationPatchSize);
+    LIMITUINT32ARGS(maxTessellationControlPerVertexInputComponents);
+    LIMITUINT32ARGS(maxTessellationControlPerVertexOutputComponents);
+    LIMITUINT32ARGS(maxTessellationControlPerPatchOutputComponents);
+    LIMITUINT32ARGS(maxTessellationControlTotalOutputComponents);
+    LIMITUINT32ARGS(maxTessellationEvaluationInputComponents);
+    LIMITUINT32ARGS(maxTessellationEvaluationOutputComponents);
+    LIMITUINT32ARGS(maxGeometryShaderInvocations);
+    LIMITUINT32ARGS(maxGeometryInputComponents);
+    LIMITUINT32ARGS(maxGeometryOutputComponents);
+    LIMITUINT32ARGS(maxGeometryOutputVertices);
+    LIMITUINT32ARGS(maxGeometryTotalOutputComponents);
+    LIMITUINT32ARGS(maxFragmentInputComponents);
+    LIMITUINT32ARGS(maxFragmentOutputAttachments);
+    LIMITUINT32ARGS(maxFragmentDualSrcAttachments);
+    LIMITUINT32ARGS(maxFragmentCombinedOutputResources);
+    LIMITUINT32ARGS(maxComputeSharedMemorySize);
+    LIMITUINT32ARGS(maxComputeWorkGroupCount[0]);
+    LIMITUINT32ARGS(maxComputeWorkGroupCount[1]);
+    LIMITUINT32ARGS(maxComputeWorkGroupCount[2]);
+    LIMITUINT32ARGS(maxComputeWorkGroupInvocations);
+    LIMITUINT32ARGS(maxComputeWorkGroupSize[0]);
+    LIMITUINT32ARGS(maxComputeWorkGroupSize[1]);
+    LIMITUINT32ARGS(maxComputeWorkGroupSize[2]);
+    LIMITUINT32ARGS(subPixelPrecisionBits);
+    LIMITUINT32ARGS(subTexelPrecisionBits);
+    LIMITUINT32ARGS(mipmapPrecisionBits);
+    LIMITUINT32ARGS(maxDrawIndexedIndexValue);
+    LIMITUINT32ARGS(maxDrawIndirectCount);
+    LIMITUINT32ARGS(maxViewports);
+    LIMITUINT32ARGS(maxViewportDimensions[0]);
+    LIMITUINT32ARGS(maxViewportDimensions[1]);
+    LIMITUINT32ARGS(viewportSubPixelBits);
+    LIMITUINT32ARGS(maxTexelOffset);
+    LIMITUINT32ARGS(maxTexelGatherOffset);
+    LIMITUINT32ARGS(subPixelInterpolationOffsetBits);
+    LIMITUINT32ARGS(maxFramebufferWidth);
+    LIMITUINT32ARGS(maxFramebufferHeight);
+    LIMITUINT32ARGS(maxFramebufferLayers);
+    LIMITUINT32ARGS(framebufferColorSampleCounts);
+    LIMITUINT32ARGS(framebufferDepthSampleCounts);
+    LIMITUINT32ARGS(framebufferStencilSampleCounts);
+    LIMITUINT32ARGS(framebufferNoAttachmentsSampleCounts);
+    LIMITUINT32ARGS(maxColorAttachments);
+    LIMITUINT32ARGS(sampledImageColorSampleCounts);
+    LIMITUINT32ARGS(sampledImageIntegerSampleCounts);
+    LIMITUINT32ARGS(sampledImageDepthSampleCounts);
+    LIMITUINT32ARGS(sampledImageStencilSampleCounts);
+    LIMITUINT32ARGS(storageImageSampleCounts);
+    LIMITUINT32ARGS(maxSampleMaskWords);
+    LIMITUINT32ARGS(timestampComputeAndGraphics);
+    LIMITUINT32ARGS(maxClipDistances);
+    LIMITUINT32ARGS(maxCullDistances);
+    LIMITUINT32ARGS(maxCombinedClipAndCullDistances);
+    LIMITUINT32ARGS(discreteQueuePriorities);
+    LIMITUINT32ARGS(strictLines);
+    LIMITUINT32ARGS(standardSampleLocations);
+
+#define LIMITUINT64ARGS(r) if(!deviceLimits[#r].isNull()) \
+    spoof_dev_data_map[physicalDevice].props->limits.r = std::strtoull(deviceLimits[#r].asCString(), nullptr, 10)
+    LIMITUINT64ARGS(bufferImageGranularity);//VkDeviceSize
+    LIMITUINT64ARGS(sparseAddressSpaceSize);//VkDeviceSize
+    LIMITUINT64ARGS(minMemoryMapAlignment);//size
+    LIMITUINT64ARGS(minTexelBufferOffsetAlignment);//VkDeviceSize
+    LIMITUINT64ARGS(minUniformBufferOffsetAlignment);//VkDeviceSize
+    LIMITUINT64ARGS(minStorageBufferOffsetAlignment);//VkDeviceSize
+    LIMITUINT64ARGS(optimalBufferCopyOffsetAlignment);//VkDeviceSize
+    LIMITUINT64ARGS(optimalBufferCopyRowPitchAlignment);//VkDeviceSize
+    LIMITUINT64ARGS(nonCoherentAtomSize);//VkDeviceSize
+
+#define LIMITFLOATARGS(r) if(!deviceLimits[#r].isNull()) \
+    spoof_dev_data_map[physicalDevice].props->limits.r = std::strtof(deviceLimits[#r].asCString(), nullptr)
+    LIMITFLOATARGS(maxSamplerLodBias);//float
+    LIMITFLOATARGS(maxSamplerAnisotropy);//float
+    LIMITFLOATARGS(viewportBoundsRange[0]);//float
+    LIMITFLOATARGS(viewportBoundsRange[1]);//float
+    LIMITFLOATARGS(minInterpolationOffset);//float
+    LIMITFLOATARGS(maxInterpolationOffset);//float
+    LIMITFLOATARGS(timestampPeriod);//float
+    LIMITFLOATARGS(pointSizeRange[0]);//float
+    LIMITFLOATARGS(pointSizeRange[1]);//float
+    LIMITFLOATARGS(lineWidthRange[0]);//float
+    LIMITFLOATARGS(lineWidthRange[1]);//float
+    LIMITFLOATARGS(pointSizeGranularity);//float
+    LIMITFLOATARGS(lineWidthGranularity);//float
+
+#define LIMITINT32ARGS(r) if(!deviceLimits[#r].isNull()) \
+    spoof_dev_data_map[physicalDevice].props->limits.r = std::atoi(deviceLimits[#r].asCString())
+    LIMITINT32ARGS(minTexelOffset);//int32
+    LIMITINT32ARGS(minTexelGatherOffset);//int32
 
     //test
     spoof_dev_data_map[physicalDevice].props->limits.maxImageDimension1D--;
