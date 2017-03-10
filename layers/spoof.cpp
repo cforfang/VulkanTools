@@ -108,7 +108,6 @@ spoof_LayerSpoofEXT(VkPhysicalDevice physicalDevice) {
 
 bool loadSpoofPhysicalDeviceProperties(Json::Value deviceProperties, VkPhysicalDevice physicalDevice) {
 
-    printf("ARDA GAGA HERE\n");
     if (deviceProperties.isNull()) {
         fprintf(stderr, "Spoof physical Device Properties DB not set\n");
         return false;
@@ -119,76 +118,16 @@ bool loadSpoofPhysicalDeviceProperties(Json::Value deviceProperties, VkPhysicalD
         return false;
     }
 
-//#define VK_VERSION_MAJOR(version) ((uint32_t)(version) >> 22)
-//#define VK_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3ff)
-//#define VK_VERSION_PATCH(version) ((uint32_t)(version) & 0xfff)
-//#define VK_MAKE_VERSION(major, minor, patch) \
-    (((major) << 22) | ((minor) << 12) | (patch))
-
-     printf("ARDA GAGA HERE2:: %d \n", spoof_dev_data_map[physicalDevice].props->apiVersion);
-     printf("ARDA GAGA HERE2:: %s \n", deviceProperties["apiversion"].asCString());
-    
-     char *versionstr = strdup(deviceProperties["apiversion"].asCString());
-     char versionitems[10];
-     uint8_t shift = 0;
-     uint8_t i = 0;
-     uint8_t j = 0;
-     uint32_t major = 0;
-     uint32_t minor = 0;
-     uint32_t patch = 0;
-     while (versionstr[i] != '\0'){
-         if (versionstr[i] == '.'){
-             versionitems[j] = '\0';
-             apiversionraw |= (std::strtoul(minor, nullptr, 10))<<shift;
-             if (shift == 0)
-                 shift = 12;
-             else if(shift == 12)
-                 shift = 22;
-             j=0;
-             i++;
-             break;
-         }
-         versionitems[j] = versionstr[i];
-         i++;
-         j++
-     }
-     uint32_t apiversionraw = VK_MAKE_VERSION(major, minor, patch);
-     
-     /*
-     char versionstr[10] = "00.00.00";
-     uint32_t apiversionraw = 0;
-     uint8_t verlen = strlen(deviceProperties["apiversion"].asCString());
-     char major[3] = "1";
-     char minor[3] = "0";
-     char patch[3] = "99";
-     
-     strncpy(versionstr,deviceProperties["apiversion"].asCString(),verlen+1);
-     uint8_t i = verlen;
-     patch[3]='\n';
-     patch[1]=versionstr[i--];
-     patch[0]=versionstr[i--];
-     apiversionraw |= std::strtoul(patch, nullptr, 10);
-     i--;
-     minor[3]='\n';
-     minor[1]=versionstr[i--];
-     minor[0]=versionstr[i--];
-     apiversionraw |= (std::strtoul(minor, nullptr, 10))<<12;
-     i--;
-     major[3]='\n';
-     major[1]=versionstr[i--];
-     major[0]=versionstr[i--];
-     apiversionraw |= (std::strtoul(major, nullptr, 10))<<22;
-     */
-     spoof_dev_data_map[physicalDevice].props->apiVersion = apiversionraw;
-     printf("ARDA GAGA HERE2:: %d \n", spoof_dev_data_map[physicalDevice].props->driverVersion);
     //Device Properties set
-    if (!deviceProperties["apiversion"].isNull()) 
-        spoof_dev_data_map[physicalDevice].props->apiVersion = std::strtoul(deviceProperties["apiversion"].asCString(), nullptr, 10);
-    printf("ARDA GAGA HERE:: %d \n", spoof_dev_data_map[physicalDevice].props->apiVersion);
+    //if (!deviceProperties["apiversion"].isNull()) 
+    //    spoof_dev_data_map[physicalDevice].props->apiVersion = 
+                                                            //std::strtoul(deviceProperties["apiversion"].asCString(), nullptr, 10);
+    if (!deviceProperties["apiversionraw"].isNull()) 
+        spoof_dev_data_map[physicalDevice].props->apiVersion = 
+                                                           std::strtoul(deviceProperties["apiversionraw"].asCString(), nullptr, 10);
     if (!deviceProperties["driverversionraw"].isNull()) 
         spoof_dev_data_map[physicalDevice].props->driverVersion = 
-                                                           std::strtoul(deviceProperties["driverversionraw"].asCString(), nullptr, 10);
-    printf("ARDA GAGA HERE:: %d \n", spoof_dev_data_map[physicalDevice].props->driverVersion);
+                                                        std::strtoul(deviceProperties["driverversionraw"].asCString(), nullptr, 10);
     if (!deviceProperties["vendorid"].isNull()) 
         spoof_dev_data_map[physicalDevice].props->vendorID = std::strtoul(deviceProperties["vendorid"].asCString(), nullptr, 10);
     if (!deviceProperties["deviceid"].isNull()) 
@@ -210,10 +149,8 @@ bool loadSpoofPhysicalDeviceProperties(Json::Value deviceProperties, VkPhysicalD
 
     //devicename
     if(!deviceProperties["devicename"].isNull())
-        //strncpy
         strcpy(spoof_dev_data_map[physicalDevice].props->deviceName, deviceProperties["devicename"].asCString());
 
-    printf("ARDA GAGA HERE:: %s \n", spoof_dev_data_map[physicalDevice].props->deviceName);
     //This Field is in Vulkan.h but Not in DB
     //uint8_t  pipelineCacheUUID[VK_UUID_SIZE];
 
@@ -230,7 +167,6 @@ bool loadSpoofPhysicalDeviceProperties(Json::Value deviceProperties, VkPhysicalD
                                             std::strtoul(deviceProperties["residencyStandard2DMSBlockShape"].asCString(), nullptr, 10);
 
     //These field are in DB but no in vulkan.h
-    //PROPERTIESARGS(driverversionraw);
     //PROPERTIESARGS(headerversion);
 
     return true;
@@ -242,7 +178,7 @@ bool loadSpoofPhysicalLimits(Json::Value deviceLimits, VkPhysicalDevice physical
         fprintf(stderr, "Spoof physical Device limits DB not set\n");
         return false;
     }
-        
+
     if (!spoof_dev_data_map[physicalDevice].props) {
         fprintf(stderr, "Spoof data for this physical Device not set\n");
         return false;
